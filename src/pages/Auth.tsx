@@ -43,6 +43,8 @@ interface AuthProps {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
 }
 
+export let isAdvancedModeChecked = false;
+
 export const Auth: React.FC<AuthProps> = ({ setIsAuthenticated }) => {
   // States for the form
   const [usage, setUsage] = useState<IStateUserInput["usage"]>();
@@ -103,6 +105,10 @@ export const Auth: React.FC<AuthProps> = ({ setIsAuthenticated }) => {
   const onChangeGivenCaseId = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue: string = e.target.value;
     setCaseId(newValue);
+  };
+
+  const onChangeGivenAdvancedModeCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
+    isAdvancedModeChecked = e.target.checked;
   };
 
   // Source: https://stackoverflow.com/questions/71991961/how-to-read-content-of-uploaded-json-file-on-react-next-js
@@ -637,6 +643,17 @@ export const Auth: React.FC<AuthProps> = ({ setIsAuthenticated }) => {
             </div>
           ) : null}
         </div>
+
+        {usage === UsageMode.Readonly ? (
+          null
+        ) : 
+        
+          <div className="flex flew-row justify-start items-center gap-4">
+          <input type="checkbox" id="advancedModeCheckbox" onChange={onChangeGivenAdvancedModeCheckbox} ></input>
+          Ich möchte das Basisdokument im Latex-Modus bearbeiten
+          </div>
+        
+        } 
 
         <div className="flex flew-row items-end justify-between space-y-2">
           <Button onClick={validateUserInput}>

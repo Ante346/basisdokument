@@ -1,4 +1,5 @@
 import { Discussion } from "../components/Discussion";
+import { LatexDiscussion } from "../components/LatexDiscussion";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/sidebar/Sidebar";
 import { Onboarding } from "../components/Onboarding";
@@ -15,6 +16,8 @@ import {
 import { JudgeHintPopup } from "../components/JudgeHintPopup";
 import { NotePopup } from "../components/NotePopup";
 import { ExportPopup } from "../components/ExportPopup";
+
+import { isAdvancedModeChecked } from "./Auth";
 
 export const Main: React.FC = () => {
   useBeforeunload(
@@ -52,7 +55,13 @@ export const Main: React.FC = () => {
       ) : null}
       <main className="w-full flex flex-col">
         <Header />
-        <Discussion />
+
+        {!isAdvancedModeChecked ? (
+
+          <Discussion />
+
+        ) : <LatexDiscussion />}
+        
       </main>
       <Sidebar />
     </div>
