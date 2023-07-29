@@ -1,12 +1,12 @@
 import { parse, HtmlGenerator } from 'latex.js'
 
-let latex = "\documentclass{article} \title{test} \author{Matthias Antholzer} \begin{document} \maketitle{} Hi, this is a line of text. \end{document}"
+let latex = "\\documentclass{article} \\title{testitest} \\author{Matthias Antholzer} \\begin{document} \\maketitle{} Hi, this is a line of text. \\end{document}"
 
 let generator = new HtmlGenerator({ hyphenate: false })
 
-let doc = parse(latex, { generator: generator })
+let doc = parse(latex, { generator: generator }).htmlDocument()
 
-console.log(doc)
+//console.log(doc.documentElement.outerHTML)
 
 export const LatexDiscussion = () => {
 
@@ -22,9 +22,8 @@ export const LatexDiscussion = () => {
             </div>
 
             <div>
-
                 <h1>Vorschau</h1>
-                <div>{doc.htmlDocument().getElementsByTagName("p")[0].innerHTML}</div>
+                <div>{doc.documentElement.outerHTML}</div>
 
             </div>
 
