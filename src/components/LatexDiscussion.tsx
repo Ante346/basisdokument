@@ -6,6 +6,8 @@ let generator = new HtmlGenerator({ hyphenate: false })
 
 let doc = parse(latex, { generator: generator }).htmlDocument()
 
+let dataURI = "data:text/html,<!DOCTYPE>" + doc.documentElement.outerHTML
+
 //console.log(doc.documentElement.outerHTML)
 
 export const LatexDiscussion = () => {
@@ -23,7 +25,7 @@ export const LatexDiscussion = () => {
 
             <div>
                 <h1>Vorschau</h1>
-                <div>{doc.documentElement.outerHTML}</div>
+                <iframe src={dataURI} ></iframe>
 
             </div>
 
