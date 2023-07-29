@@ -1,14 +1,12 @@
 import { parse, HtmlGenerator } from 'latex.js'
 
-let latex = "\\documentclass{article} \\title{testitest} \\author{Matthias Antholzer} \\begin{document} \\maketitle{} Hi, this is a line of text. \\end{document}"
+let latex = "\\documentclass{article} \\title{Test} \\author{Matthias Antholzer} \\begin{document} \\maketitle{} Hi, this is a line of text. \\end{document}"
 
 let generator = new HtmlGenerator({ hyphenate: false })
 
 let doc = parse(latex, { generator: generator }).htmlDocument()
 
 let dataURI = "data:text/html,<!DOCTYPE>" + doc.documentElement.outerHTML
-
-//console.log(doc.documentElement.outerHTML)
 
 export const LatexDiscussion = () => {
 
