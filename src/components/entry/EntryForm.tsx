@@ -13,6 +13,9 @@ import { Button } from "../Button";
 import { ExpandButton } from "./ExpandButton";
 import { EvidencesPopup } from "./EvidencePopup";
 
+import { isAdvancedModeChecked } from "../../pages/Auth";
+import { LatexDiscussion } from "../../components/LatexDiscussion";
+
 const toolbarOptions = {
   options: ["blockType", "inline", "list", "textAlign"],
   blockType: {
@@ -103,7 +106,9 @@ export const EntryForm: React.FC<EntryBodyProps> = ({
             !isPlaintiff,
           "RichEditor-hidePlaceholder": hidePlaceholder,
         })}>
-        <Editor
+
+        {!isAdvancedModeChecked ? (
+          <Editor
           ref={editorRef}
           mention={{
             separator: " ",
@@ -139,6 +144,8 @@ export const EntryForm: React.FC<EntryBodyProps> = ({
               : []
           }
         />
+        ) : <LatexDiscussion content={defaultContent +""}/>}
+        
         <div className="flex border-t border-lightGrey rounded-b-lg px-3 py-2 items-center gap-2 justify-between">
           {entryEvidences.length <= 0 ? (
             <div className="flex flex-col gap-2 items-center">
@@ -194,21 +201,45 @@ export const EntryForm: React.FC<EntryBodyProps> = ({
             textColor="font-bold text-darkRed hover:text-white">
             Abbrechen
           </Button>
-          <Button
-            icon={<FloppyDisk size={20} />}
-            onClick={() => {
-              const plainText = editorState.getCurrentContent().getPlainText();
-              const newHtml = draftToHtml(
-                convertToRaw(editorState.getCurrentContent())
-              );
+          {!isAdvancedModeChecked ? (
+            <Button
+              icon={<FloppyDisk size={20} />}
+              onClick={() => {
+                
+                const plainText = editorState.getCurrentContent().getPlainText();
+                const newHtml = draftToHtml(
+                  convertToRaw(editorState.getCurrentContent())
+                );
 
-              onSave(plainText, newHtml, entryEvidences);
-            }}
-            size="sm"
-            bgColor="bg-lightGreen hover:bg-darkGreen"
-            textColor="font-bold text-darkGreen hover:text-white">
-            Speichern
-          </Button>
+                onSave(plainText, newHtml, entryEvidences);
+              }}
+              size="sm"
+              bgColor="bg-lightGreen hover:bg-darkGreen"
+              textColor="font-bold text-darkGreen hover:text-white">
+              Speichern
+            </Button>
+          ) : 
+          (
+            <Button
+              icon={<FloppyDisk size={20} />}
+              onClick={() => {
+                
+                let textarea1 = document.getElementById("latex_textarea") as HTMLTextAreaElement;
+                let latexoutput1 = document.getElementById("latex_output_area") as HTMLIFrameElement;
+                let plainText = textarea1.value;
+                let newHtml = latexoutput1.src;
+
+                //!console.log(plainText," / ",newHtml)
+
+                onSave(plainText, newHtml, entryEvidences);
+              }}
+              size="sm"
+              bgColor="bg-lightGreen hover:bg-darkGreen"
+              textColor="font-bold text-darkGreen hover:text-white">
+              Speichern2
+            </Button>
+          )
+          }
         </div>
       </div>
       <EvidencesPopup

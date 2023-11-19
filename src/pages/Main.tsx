@@ -56,11 +56,11 @@ export const Main: React.FC = () => {
       <main className="w-full flex flex-col">
         <Header />
 
-        {!isAdvancedModeChecked ? (
+        {true ? (
 
           <Discussion />
 
-        ) : <LatexDiscussion />}
+        ) : <LatexDiscussion content={""}/>}
         
       </main>
       <Sidebar />

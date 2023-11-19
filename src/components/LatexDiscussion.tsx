@@ -15,6 +15,10 @@ const createLatexString = (string: string) => {
     return dataURI
 };
 
+interface LatexDiscussionProps {
+    content: string,
+  }
+
 const compile = () => {
 
     console.log("Compiling...");
@@ -29,10 +33,22 @@ const compile = () => {
 
 };
 
+const stringfromDefaultContent = (content:string) => {
+
+    // TODO in content string there is a paragraph containing the data, how do I get the data out?
+
+    console.log(content);
+
+    return "";
+}
+
 createLatexString("Test");
 
-export const LatexDiscussion = () => {
+export const LatexDiscussion: React.FC<LatexDiscussionProps> = (
+    content,
+) => {
 
+    console.log("LatexDiscussion:" + content.content)
     return (
         <div className="h-4/6">
             <div className="flex flew-row justify-around gap-4 h-full">
@@ -40,7 +56,7 @@ export const LatexDiscussion = () => {
                 <div className="w-1/2 h-5/6 m-5">
 
                     <h1>Editor</h1>
-                    <textarea className="h-full w-full shadow-2xl border-2 rounded-md" id="latex_textarea"></textarea>
+                    <textarea className="h-full w-full shadow-2xl border-2 rounded-md" defaultValue={stringfromDefaultContent(content.content) } id="latex_textarea"></textarea>
 
                 </div>
 
