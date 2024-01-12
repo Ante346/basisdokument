@@ -39,7 +39,7 @@ const stringfromDefaultContent = (content:string) => {
 
     console.log(content);
 
-    return "";
+    return content;
 }
 
 createLatexString("Test");

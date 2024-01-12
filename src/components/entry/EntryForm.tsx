@@ -229,9 +229,9 @@ export const EntryForm: React.FC<EntryBodyProps> = ({
                 let plainText = textarea1.value;
                 let newHtml = latexoutput1.src;
 
-                //!console.log(plainText," / ",newHtml)
-
-                onSave(plainText, newHtml, entryEvidences);
+                //!console.log(plainText / ",newHtml)
+                //*onSave(plainText, newHtml, entryEvidences);
+                onSave(plainText, plainText, entryEvidences);
               }}
               size="sm"
               bgColor="bg-lightGreen hover:bg-darkGreen"
