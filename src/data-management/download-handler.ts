@@ -157,6 +157,7 @@ async function mergePDF(coverPDF: ArrayBuffer, basisdokumentPDF: ArrayBuffer, fi
   downloadPDF(file, fileName);
 }
 
+//TODO implement function
 async function downloadBasisdokumentAsLatex(coverPDF: ArrayBuffer | undefined, downloadNew: boolean, obj: any, fileName: string) {
 
 }
