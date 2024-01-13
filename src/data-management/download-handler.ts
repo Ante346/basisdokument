@@ -157,6 +157,10 @@ async function mergePDF(coverPDF: ArrayBuffer, basisdokumentPDF: ArrayBuffer, fi
   downloadPDF(file, fileName);
 }
 
+async function downloadBasisdokumentAsLatex(coverPDF: ArrayBuffer | undefined, downloadNew: boolean, obj: any, fileName: string) {
+
+}
+
 async function downloadBasisdokumentAsPDF(coverPDF: ArrayBuffer | undefined, downloadNew: boolean, obj: any, fileName: string) {
 
   let doc = new jsPDF();
@@ -757,6 +761,7 @@ export function downloadBasisdokument(
   coverPDF: ArrayBuffer | undefined,
   otherAuthor: string | undefined,
   downloadNewAdditionally: boolean,
+  downloadAsLatex: boolean,
 ) {
   let basisdokumentObject: any = {};
   basisdokumentObject["caseId"] = caseId;
@@ -790,12 +795,23 @@ export function downloadBasisdokument(
     basisdokumentObject,
     `basisdokument_version_${currentVersion}_az_${caseIdForFilename}_${dateString}`
   );
-  downloadBasisdokumentAsPDF(
-    coverPDF,
-    downloadNewAdditionally,
-    basisdokumentObject,
-    `basisdokument_version_${currentVersion}_az_${caseIdForFilename}_${dateString}`
-  );
+  
+  if(downloadAsLatex){
+    downloadBasisdokumentAsLatex(
+      coverPDF,
+      downloadNewAdditionally,
+      basisdokumentObject,
+      `basisdokument_version_${currentVersion}_az_${caseIdForFilename}_${dateString}`
+    );
+  } else {
+    downloadBasisdokumentAsPDF(
+      coverPDF,
+      downloadNewAdditionally,
+      basisdokumentObject,
+      `basisdokument_version_${currentVersion}_az_${caseIdForFilename}_${dateString}`
+    );
+  }
+
 }
 
 export function downloadEditFile(

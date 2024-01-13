@@ -64,6 +64,7 @@ export const ExportPopup: React.FC<IProps> = ({
   const [showAuthorChange, setShowAuthorChange] = useState<boolean>(false);
   const [showOptionalCover, setShowOptionalCover] = useState<boolean>(false);
   var [downloadNewAdditionally, setDownloadNewAdditionally] = useState<boolean>(false);
+  var [downloadAsLatex, setDownloadAsLatex] = useState<boolean>(false);
   var validUserInput: boolean = true;
 
   //Refs
@@ -125,7 +126,8 @@ export const ExportPopup: React.FC<IProps> = ({
         hints,
         coverPDF,
         otherAuthor,
-        downloadNewAdditionally
+        downloadNewAdditionally,
+        downloadAsLatex,
       );
     }, 100);
     setTimeout(() => {
@@ -259,6 +261,7 @@ export const ExportPopup: React.FC<IProps> = ({
                   />
                 </div>
               )}
+
               <div className="flex flex-row items-center justify-left gap-2">
                 <input
                   className="small-checkbox accent-darkGrey cursor-pointer"
@@ -280,6 +283,19 @@ export const ExportPopup: React.FC<IProps> = ({
                   </div>
                 ) : null}
               </div>
+
+              <div className="flex flex-row items-center justify-left gap-2">
+                <input
+                  className="small-checkbox accent-darkGrey cursor-pointer"
+                  type="checkbox"
+                  checked={downloadAsLatex}
+                  onChange={() => setDownloadAsLatex(!downloadAsLatex)}
+                />
+                <div className="flex flex-row gap-0.5">
+                  <span className="font-semibold">Dokument als Latex Datei herunterladen</span>
+                </div>
+              </div>
+
               <div className="flex flex-row justify-end">
                 <Button
                   size="md"

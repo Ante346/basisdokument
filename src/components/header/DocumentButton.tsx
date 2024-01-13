@@ -67,6 +67,7 @@ export const DocumentButton = () => {
         hints,
         undefined, //coverPDF
         undefined, //otherAuthor
+        false,
         false //download new entries additionally
       );
     }, 100);
