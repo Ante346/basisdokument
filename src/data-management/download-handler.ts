@@ -1,4 +1,5 @@
 import { saveAs } from "file-saver";
+import { parse, HtmlGenerator } from 'latex.js'
 import {
   IBookmark,
   IEntry,
@@ -157,10 +158,34 @@ async function mergePDF(coverPDF: ArrayBuffer, basisdokumentPDF: ArrayBuffer, fi
   downloadPDF(file, fileName);
 }
 
-//TODO implement function
-async function downloadBasisdokumentAsLatex(coverPDF: ArrayBuffer | undefined, downloadNew: boolean, obj: any, fileName: string) {
+//* extracts the text from the entries and puts it together to create a Textdocument only containing the plain Latex Text
+async function downloadBasisdokumentAsLatex(entries: IEntry[], obj: any, fileName: string) {
+  
+  let entriesText = "";
 
+  for(let i=0;i<entries.length;i++){
+    let entry = entries.at(i);
+    let entrytext = entry?.text;
+    entriesText = entriesText + entrytext + "\n";
+  }
+  
+  
+  // Create a blob of the data
+  const fileToSave = new Blob([entriesText], {
+    type: "application/json",
+  });
+
+  // Save the file
+  saveAs(fileToSave, fileName + ".txt");
+
+  createPDFFromLatex(entriesText);
 }
+
+//TODO implement function
+async function createPDFFromLatex(entriesText: string) {
+  throw new Error("Function not implemented.");
+}
+
 
 async function downloadBasisdokumentAsPDF(coverPDF: ArrayBuffer | undefined, downloadNew: boolean, obj: any, fileName: string) {
 
@@ -778,6 +803,8 @@ export function downloadBasisdokument(
   basisdokumentObject["judgeHints"] = hints;
   basisdokumentObject["otherAuthor"] = otherAuthor;
 
+  //console.log(entries);
+
   const date: Date =
     basisdokumentObject["versions"][basisdokumentObject["versions"].length - 1][
       "timestamp"
@@ -791,20 +818,22 @@ export function downloadBasisdokument(
     .toString()
     .padStart(2, "0")}-${date.getMinutes().toString().padStart(2, "0")}`;
   const caseIdForFilename = caseId.trim().replace(/ /g, "-");
-
-  downloadObjectAsJSON(
-    basisdokumentObject,
-    `basisdokument_version_${currentVersion}_az_${caseIdForFilename}_${dateString}`
-  );
   
   if(downloadAsLatex){
+
     downloadBasisdokumentAsLatex(
-      coverPDF,
-      downloadNewAdditionally,
+      entries,
       basisdokumentObject,
       `basisdokument_version_${currentVersion}_az_${caseIdForFilename}_${dateString}`
     );
+
   } else {
+
+    downloadObjectAsJSON(
+      basisdokumentObject,
+      `basisdokument_version_${currentVersion}_az_${caseIdForFilename}_${dateString}`
+    );
+
     downloadBasisdokumentAsPDF(
       coverPDF,
       downloadNewAdditionally,
