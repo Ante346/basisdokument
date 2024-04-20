@@ -178,12 +178,76 @@ async function downloadBasisdokumentAsLatex(entries: IEntry[], obj: any, fileNam
   // Save the file
   saveAs(fileToSave, fileName + ".txt");
 
-  createPDFFromLatex(entriesText);
+  createPDFFromLatex(entriesText, fileName);
 }
 
-//TODO implement function
-async function createPDFFromLatex(entriesText: string) {
-  throw new Error("Function not implemented.");
+async function createPDFFromLatex(entriesText: string, filename: string) {
+
+  //! eventuell so nichtmachbar, da latex.js stylesheets benutzt und pdf.js nur den plain html code benutzt...🥲
+  //! html2canvas versuchen, vllt funktioniert durch "screenshots" die formatierung richtig
+  //! sonst über drucken der Seite versuchen (convertHTMLtoPDFbyPrinting)
+  
+  let latex = "\\documentclass{article} \\title{Test} \\author{Matthias Antholzer} \\begin{document}" + entriesText + "\\end{document}"
+
+  let generator = new HtmlGenerator({ hyphenate: false })
+
+  let doc = parse(latex, { generator: generator }).htmlDocument()
+  
+  //.documentElement.outerHTML
+
+  //Html to PDF converter from
+  convertHTMLtoPDF(doc, filename);
+
+  //console.log(doc)
+
+}
+
+async function convertHTMLtoPDFbyPrinting(doc: any, filename: string){
+
+  var wnd = window.open('about:blank', '', '_blank');
+  if(wnd!=null){
+    wnd.document.write(doc.documentElement.outerHTML);
+    wnd.document.close(); 
+    wnd.focus();
+    wnd.print();
+    //wnd.close();
+  }
+
+}
+
+//html to pdf by https://github.com/parallax/jsPDF
+async function convertHTMLtoPDF(doc: any, filename: string){
+
+  const pdfDoc = new jsPDF();
+
+  //console.log(doc.documentElement)
+
+  var wnd = window.open('about:blank', '', '_blank');
+  if(wnd!=null){
+    wnd.document.write(doc.documentElement.outerHTML);
+    wnd.document.close(); 
+
+    console.log(wnd.document.documentElement)
+
+    //TODO eleganter lösen 😅
+    setTimeout(() => {
+      if(wnd!=null){
+        pdfDoc.html(wnd.document.documentElement, {
+        callback: function (pdfDoc) {
+          pdfDoc.save(filename);
+        }
+        });
+        wnd.close()
+      }
+
+    },1000);
+
+   
+
+  }
+
+  //pdfDoc.text(doc.documentElement.outerHTML, 10, 10);
+  //pdfDoc.save("a4.pdf");
 }
 
 
