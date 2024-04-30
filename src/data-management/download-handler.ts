@@ -13,6 +13,7 @@ import {
   IVersion,
 } from "../types";
 import { jsPDF } from "jspdf";
+import html2canvas from 'html2canvas';
 import autoTable from "jspdf-autotable";
 import { groupEntriesBySectionAndParent } from "../contexts/CaseContext";
 import { format } from "date-fns";
@@ -196,7 +197,7 @@ async function createPDFFromLatex(entriesText: string, filename: string) {
   //.documentElement.outerHTML
 
   //Html to PDF converter from
-  convertHTMLtoPDF(doc, filename);
+  convertHTMLtoPDFbyHtml2Canvas(doc, filename);
 
   //console.log(doc)
 
@@ -214,6 +215,38 @@ async function convertHTMLtoPDFbyPrinting(doc: any, filename: string){
   }
 
 }
+
+function convertHTMLtoPDFbyHtml2Canvas(doc: any, filename: string){
+  //console.log(doc);
+
+  var wnd = window.open('about:blank', '', '_blank');
+  if(wnd!=null){
+    wnd.document.write(doc.documentElement.outerHTML);
+
+    //TODO eleganter lösen 😅
+    setTimeout(() => {
+      if(wnd!=null){
+        console.log(wnd.document.body)
+        html2canvas(wnd.document.body).then(function(canvas) {
+          //document.body.appendChild(canvas);
+          console.log(canvas)
+      
+          var imgData = canvas.toDataURL("image/jpeg", 1.0);
+          var pdf = new jsPDF();
+      
+          pdf.addImage(imgData, 'JPEG', 0, 0, 0, 0);
+          pdf.save("download.pdf");
+          if(wnd!=null){
+            wnd.close();
+          }
+        });
+      }
+    },1000);
+
+  }
+
+}
+
 
 //html to pdf by https://github.com/parallax/jsPDF
 async function convertHTMLtoPDF(doc: any, filename: string){
