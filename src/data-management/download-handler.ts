@@ -179,16 +179,26 @@ async function downloadBasisdokumentAsLatex(entries: IEntry[], obj: any, fileNam
   // Save the file
   saveAs(fileToSave, fileName + ".txt");
 
-  createPDFFromLatex(entriesText, fileName);
+  createPDFFromLatex(entriesText, fileName, obj);
 }
 
-async function createPDFFromLatex(entriesText: string, filename: string) {
+async function createPDFFromLatex(entriesText: string, filename: string, basisdokumentObject: any) {
 
-  //! eventuell so nichtmachbar, da latex.js stylesheets benutzt und pdf.js nur den plain html code benutzt...🥲
-  //! html2canvas versuchen, vllt funktioniert durch "screenshots" die formatierung richtig
-  //! sonst über drucken der Seite versuchen (convertHTMLtoPDFbyPrinting)
-  
-  let latex = "\\documentclass{article} \\title{Test} \\author{Matthias Antholzer} \\begin{document}" + entriesText + "\\end{document}"
+  //TODO Style PDF by Styling the Latex code
+
+  let title = " Aktenzeichen: "+ basisdokumentObject.caseId +" Version: " + basisdokumentObject.currentVersion + " Export: " + basisdokumentObject.timestamp
+
+  let titleTable = `\\begin{center}
+
+    Aktenzeichen: ${basisdokumentObject.caseId} \\par
+    Version: ${basisdokumentObject.currentVersion} \\par
+    Export: ${basisdokumentObject.timestamp} \\par
+
+  \\end{center}
+
+  `
+
+  let latex = "\\documentclass{article} \\title{Test} \\author{Matthias Antholzer} \\begin{document}" + titleTable + entriesText + "\\end{document}"
 
   let generator = new HtmlGenerator({ hyphenate: false })
 
@@ -197,6 +207,7 @@ async function createPDFFromLatex(entriesText: string, filename: string) {
   //.documentElement.outerHTML
 
   //Html to PDF converter from
+  //*convertHTMLtoPDFbyHtml2Canvas(doc, filename);
   convertHTMLtoPDFbyHtml2Canvas(doc, filename);
 
   //console.log(doc)
@@ -229,12 +240,30 @@ function convertHTMLtoPDFbyHtml2Canvas(doc: any, filename: string){
         console.log(wnd.document.body)
         html2canvas(wnd.document.body).then(function(canvas) {
           //document.body.appendChild(canvas);
-          console.log(canvas)
-      
-          var imgData = canvas.toDataURL("image/jpeg", 1.0);
-          var pdf = new jsPDF();
-      
-          pdf.addImage(imgData, 'JPEG', 0, 0, 0, 0);
+
+          const pdfWidth = 500;
+          const pdfHeight = pdfWidth * 1.414;
+          const pdfmargin = pdfHeight * 0.05;
+
+          var pdf = new jsPDF("p", "px" ,[pdfWidth,pdfHeight]);
+
+          for(var i = canvas.height; i > 0; i -= pdfHeight){
+
+            var newCanv = document.createElement('canvas');
+            newCanv.width = pdfWidth;
+            newCanv.height = pdfHeight;
+            let ctx = newCanv.getContext("2d");
+            ctx?.drawImage(canvas,0,-pdfHeight*(pdf.getNumberOfPages()-1));
+
+            var imgData = newCanv.toDataURL("image/png");
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight - pdfmargin);
+            pdf.addPage();
+
+          }  
+
+          pdf.deletePage(pdf.getNumberOfPages());
+
           pdf.save("download.pdf");
           if(wnd!=null){
             wnd.close();
