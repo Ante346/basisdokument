@@ -159,58 +159,89 @@ async function mergePDF(coverPDF: ArrayBuffer, basisdokumentPDF: ArrayBuffer, fi
   downloadPDF(file, fileName);
 }
 
-//* extracts the text from the entries and puts it together to create a Textdocument only containing the plain Latex Text
-async function downloadBasisdokumentAsLatex(entries: IEntry[], obj: any, fileName: string) {
-  
-  let entriesText = "";
+function createLatexString(basisdokumentObject: any, filename: string){
+  //TODO Style PDF by Styling the Latex code
 
-  for(let i=0;i<entries.length;i++){
-    let entry = entries.at(i);
-    let entrytext = entry?.text;
-    entriesText = entriesText + entrytext + "\n";
-  }
+  let packageImport = `
+    
+  \\usepackage{comment, multicol}
+  \\usepackage{hyperref}
+
+  \\usepackage{calc,pict2e,picture}
+  \\usepackage{textgreek,textcomp,gensymb,stix}
+
+  `
+
+  let titleTable = `
   
+  \\begin{center}
+
+  Basisdokument \\par
+  Aktenzeichen: ${basisdokumentObject.caseId} \\par
+  Version: ${basisdokumentObject.currentVersion} \\par
+  Export: ${basisdokumentObject.timestamp} \\par
+
+  \\end{center}
+
+  `
+  console.log(basisdokumentObject);
+ 
+  let contentString = "";
+
+  for(let i=0; i<basisdokumentObject.sections.length; i++){
+    contentString += `\\section{${basisdokumentObject.sections[i].titlePlaintiff}}`;
+
+    let entriesString = [];
+
+    for(let j = basisdokumentObject.entries.length-1; j >= 0; j--){
+
+      //* extract Code and see if first number = i + 1 (maybe there is a better way, idk🤷‍♀️)
+
+      let entryCode = basisdokumentObject.entries[j].entryCode;
+
+      
+      let entryString = "";
+
+      if(entryCode.charAt(2) === (i+1).toString()){
+        entryString += `\\subsection{${basisdokumentObject.entries[j].entryCode}}`;
+        entryString += basisdokumentObject.entries[j].text;
+      }
+
+      entriesString.push(entryString);
+    }
+
+    for(let i=entriesString.length-1;i>=0;i--){
+      contentString += entriesString[i];
+    }
+
+  }
+
+  let latexString = "\\documentclass{article}" + packageImport + "\\begin{document}" + titleTable + contentString +"\\end{document}"
+
+
+  createPDFFromLatex(latexString, filename);
+  downloadBasisdokumentAsLatex(latexString, filename);
+
+}
+
+async function downloadBasisdokumentAsLatex(latexString: string, fileName: string) {
   
   // Create a blob of the data
-  const fileToSave = new Blob([entriesText], {
+  const fileToSave = new Blob([latexString], {
     type: "application/json",
   });
 
   // Save the file
   saveAs(fileToSave, fileName + ".txt");
-
-  createPDFFromLatex(entriesText, fileName, obj);
 }
 
-async function createPDFFromLatex(entriesText: string, filename: string, basisdokumentObject: any) {
-
-  //TODO Style PDF by Styling the Latex code
-
-  let title = " Aktenzeichen: "+ basisdokumentObject.caseId +" Version: " + basisdokumentObject.currentVersion + " Export: " + basisdokumentObject.timestamp
-
-  let titleTable = `\\begin{center}
-
-    Aktenzeichen: ${basisdokumentObject.caseId} \\par
-    Version: ${basisdokumentObject.currentVersion} \\par
-    Export: ${basisdokumentObject.timestamp} \\par
-
-  \\end{center}
-
-  `
-
-  let latex = "\\documentclass{article} \\title{Test} \\author{Matthias Antholzer} \\begin{document}" + titleTable + entriesText + "\\end{document}"
+async function createPDFFromLatex(latexString: string, filename: string) {
 
   let generator = new HtmlGenerator({ hyphenate: false })
 
-  let doc = parse(latex, { generator: generator }).htmlDocument()
+  let doc = parse(latexString, { generator: generator }).htmlDocument()
   
-  //.documentElement.outerHTML
-
-  //Html to PDF converter from
-  //*convertHTMLtoPDFbyHtml2Canvas(doc, filename);
   convertHTMLtoPDFbyHtml2Canvas(doc, filename);
-
-  //console.log(doc)
 
 }
 
@@ -237,7 +268,7 @@ function convertHTMLtoPDFbyHtml2Canvas(doc: any, filename: string){
     //TODO eleganter lösen 😅
     setTimeout(() => {
       if(wnd!=null){
-        console.log(wnd.document.body)
+
         html2canvas(wnd.document.body).then(function(canvas) {
           //document.body.appendChild(canvas);
 
@@ -947,8 +978,7 @@ export function downloadBasisdokument(
   
   if(downloadAsLatex){
 
-    downloadBasisdokumentAsLatex(
-      entries,
+    createLatexString(
       basisdokumentObject,
       `basisdokument_version_${currentVersion}_az_${caseIdForFilename}_${dateString}`
     );
