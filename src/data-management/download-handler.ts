@@ -18,6 +18,7 @@ import autoTable from "jspdf-autotable";
 import { groupEntriesBySectionAndParent } from "../contexts/CaseContext";
 import { format } from "date-fns";
 import { PDFDocument } from "pdf-lib";
+import { AnyNaptrRecord } from "dns";
 
 //define data arrays
 let allEntries: any[] = [];
@@ -160,7 +161,8 @@ async function mergePDF(coverPDF: ArrayBuffer, basisdokumentPDF: ArrayBuffer, fi
 }
 
 function createLatexString(basisdokumentObject: any, filename: string){
-  //TODO Style PDF by Styling the Latex code
+
+  //*Hier wird auf Grundlage der Inhalte des Basisdokument der Latex Code erstellt
 
   let packageImport = `
     
@@ -237,7 +239,23 @@ async function downloadBasisdokumentAsLatex(latexString: string, fileName: strin
 
 async function createPDFFromLatex(latexString: string, filename: string) {
 
-  let generator = new HtmlGenerator({ hyphenate: false })
+  var generator = new HtmlGenerator({
+    CustomMacros: (function() {
+      var args:any = CustomMacros.args = {},
+          prototype = CustomMacros.prototype;
+  
+      function CustomMacros(this: any, generator: any) {
+        this.g = generator;
+      }
+  
+      args['bf'] = ['HV']
+      prototype['bf'] = function() {
+        this.g.setFontWeight('bf')
+      };
+  
+      return CustomMacros;
+    }())
+  });
 
   let doc = parse(latexString, { generator: generator }).htmlDocument()
   
@@ -313,8 +331,16 @@ async function convertHTMLtoPDF(doc: any, filename: string){
 
   const pdfDoc = new jsPDF();
 
-  //console.log(doc.documentElement)
+  console.log(doc);
 
+  pdfDoc.html(doc.documentElement, {
+    callback: function (pdfDoc) {
+      pdfDoc.save(filename);
+    }
+  });
+
+  //console.log(doc.documentElement)
+  /*
   var wnd = window.open('about:blank', '', '_blank');
   if(wnd!=null){
     wnd.document.write(doc.documentElement.outerHTML);
@@ -333,11 +359,11 @@ async function convertHTMLtoPDF(doc: any, filename: string){
         wnd.close()
       }
 
-    },1000);
+    },1000);*/
 
    
 
-  }
+  //}
 
   //pdfDoc.text(doc.documentElement.outerHTML, 10, 10);
   //pdfDoc.save("a4.pdf");

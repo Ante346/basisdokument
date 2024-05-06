@@ -6,7 +6,38 @@ let dataURI: string | undefined;
 const createLatexString = (string: string) => {
     let latex = "\\documentclass{article} \\title{Test} \\author{Matthias Antholzer} \\begin{document}" + string + "\\end{document}"
 
-    let generator = new HtmlGenerator({ hyphenate: false })
+    let generator = new HtmlGenerator({
+        CustomMacros: (function() {
+            var args:any = CustomMacros.args = {},
+            prototype = CustomMacros.prototype;
+
+            let name:String = "";
+            let address:String = "";
+            let parteibez:String = "";
+      
+            function CustomMacros(this: any, generator: any) {
+                this.g = generator;
+            }
+      
+            args['setparteibez'] = ['HV', 'g'];
+            args['parteibez'] = ['H'];
+
+            prototype['setparteibez'] = function(parteiBez:any) {
+                let array = parteiBez.textContent.split(",");
+                name = array[0];
+                address = array[1];
+                parteibez = array[2];
+            };
+
+            prototype['parteibez'] = function() {
+                let parteiBezArray = new Array;
+                parteiBezArray.push(name +" "+ address +" " + parteibez);
+                return parteiBezArray;
+            };
+      
+            return CustomMacros;
+        }())
+      })
 
     let doc = parse(latex, { generator: generator }).htmlDocument()
 
@@ -21,7 +52,6 @@ interface LatexDiscussionProps {
 
 const compile = () => {
 
-    console.log("Compiling...");
     let textarea1 = document.getElementById("latex_textarea") as HTMLTextAreaElement;
     let latexoutput1 = document.getElementById("latex_output_area") as HTMLIFrameElement;
 
@@ -35,20 +65,13 @@ const compile = () => {
 
 const stringfromDefaultContent = (content:string) => {
 
-    // TODO in content string there is a paragraph containing the data, how do I get the data out?
-
-    console.log(content);
-
     return content;
 }
-
-createLatexString("Test");
 
 export const LatexDiscussion: React.FC<LatexDiscussionProps> = (
     content,
 ) => {
 
-    console.log("LatexDiscussion:" + content.content)
     return (
         <div className="h-4/6">
             <div className="flex flew-row justify-around gap-4 h-full">
