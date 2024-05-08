@@ -1,5 +1,5 @@
 import { saveAs } from "file-saver";
-import { parse, HtmlGenerator } from 'latex.js'
+import { parse, HtmlGenerator, LaTeXJSComponent } from 'latex.js'
 import {
   IBookmark,
   IEntry,
@@ -19,6 +19,7 @@ import { groupEntriesBySectionAndParent } from "../contexts/CaseContext";
 import { format } from "date-fns";
 import { PDFDocument } from "pdf-lib";
 import { AnyNaptrRecord } from "dns";
+import { createCustomMacros } from "../contexts/CustomMacrosContext";
 
 //define data arrays
 let allEntries: any[] = [];
@@ -186,8 +187,7 @@ function createLatexString(basisdokumentObject: any, filename: string){
   \\end{center}
 
   `
-  console.log(basisdokumentObject);
- 
+
   let contentString = "";
 
   for(let i=0; i<basisdokumentObject.sections.length; i++){
@@ -205,8 +205,22 @@ function createLatexString(basisdokumentObject: any, filename: string){
       let entryString = "";
 
       if(entryCode.charAt(2) === (i+1).toString()){
+
+        if(entryCode.charAt(0)==="K"){
+          entryString += `\\begin{flushleft}`
+        } else if(entryCode.charAt(0)==="B"){
+          entryString += `\\begin{flushright}`
+        }
+
         entryString += `\\subsection{${basisdokumentObject.entries[j].entryCode}}`;
         entryString += basisdokumentObject.entries[j].text;
+
+        if(entryCode.charAt(0)==="K"){
+          entryString += `\\end{flushleft}`
+        } else if(entryCode.charAt(0)==="B"){
+          entryString += `\\end{flushright}`
+        }
+
       }
 
       entriesString.push(entryString);
@@ -240,37 +254,34 @@ async function downloadBasisdokumentAsLatex(latexString: string, fileName: strin
 async function createPDFFromLatex(latexString: string, filename: string) {
 
   var generator = new HtmlGenerator({
-    CustomMacros: (function() {
-      var args:any = CustomMacros.args = {},
-          prototype = CustomMacros.prototype;
-  
-      function CustomMacros(this: any, generator: any) {
-        this.g = generator;
-      }
-  
-      args['bf'] = ['HV']
-      prototype['bf'] = function() {
-        this.g.setFontWeight('bf')
-      };
-  
-      return CustomMacros;
-    }())
+    CustomMacros: (createCustomMacros())
   });
 
   let doc = parse(latexString, { generator: generator }).htmlDocument()
-  
-  convertHTMLtoPDFbyHtml2Canvas(doc, filename);
+
+  convertHTMLtoPDFbyPrinting(doc, filename);
 
 }
 
 async function convertHTMLtoPDFbyPrinting(doc: any, filename: string){
 
+  //! anderes Fenster keinen Zugriff auf Stylesheets... Wie umgehen?😭
+  
   var wnd = window.open('about:blank', '', '_blank');
+  
   if(wnd!=null){
-    wnd.document.write(doc.documentElement.outerHTML);
-    wnd.document.close(); 
-    wnd.focus();
-    wnd.print();
+
+    let wndContent = doc.documentElement.outerHTML;
+    
+    wndContent = wndContent.replace("http://localhost:3000/css/article.css","../css/article.css");
+    wndContent = wndContent.replace("http://localhost:3000/css/katex.css","../css/katex.css");
+    
+    console.log(wndContent);
+
+    document.write(wndContent);
+    document.close();
+    //wnd.focus();
+    //wnd.print();
     //wnd.close();
   }
 

@@ -1,5 +1,6 @@
 import { parse, HtmlGenerator } from 'latex.js'
 import { Button } from "../components/Button";
+import { createCustomMacros } from "../contexts/CustomMacrosContext"
 
 let dataURI: string | undefined;
 
@@ -7,36 +8,7 @@ const createLatexString = (string: string) => {
     let latex = "\\documentclass{article} \\title{Test} \\author{Matthias Antholzer} \\begin{document}" + string + "\\end{document}"
 
     let generator = new HtmlGenerator({
-        CustomMacros: (function() {
-            var args:any = CustomMacros.args = {},
-            prototype = CustomMacros.prototype;
-
-            let name:String = "";
-            let address:String = "";
-            let parteibez:String = "";
-      
-            function CustomMacros(this: any, generator: any) {
-                this.g = generator;
-            }
-      
-            args['setparteibez'] = ['HV', 'g'];
-            args['parteibez'] = ['H'];
-
-            prototype['setparteibez'] = function(parteiBez:any) {
-                let array = parteiBez.textContent.split(",");
-                name = array[0];
-                address = array[1];
-                parteibez = array[2];
-            };
-
-            prototype['parteibez'] = function() {
-                let parteiBezArray = new Array;
-                parteiBezArray.push(name +" "+ address +" " + parteibez);
-                return parteiBezArray;
-            };
-      
-            return CustomMacros;
-        }())
+        CustomMacros: (createCustomMacros())
       })
 
     let doc = parse(latex, { generator: generator }).htmlDocument()
@@ -58,6 +30,7 @@ const compile = () => {
     if(latexoutput1 != null){
 
         latexoutput1.src = createLatexString(textarea1.value);
+        console.log(createLatexString(textarea1.value))
 
     }
 
