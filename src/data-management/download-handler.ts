@@ -266,22 +266,45 @@ async function createPDFFromLatex(latexString: string, filename: string) {
 async function convertHTMLtoPDFbyPrinting(doc: any, filename: string){
 
   //! anderes Fenster keinen Zugriff auf Stylesheets... Wie umgehen?😭
+  //* statt stylesheets einfach Property ändern... nicht so ideal aber naja🤷‍♀️
+
+  let entriesRight = doc.querySelectorAll(".list.flushright");
+  let entriesCenter = doc.querySelectorAll(".list.center");
+  let entriesLeft = doc.querySelectorAll(".list.flushleft");
+
+  for(let i=0;i<entriesRight.length;i++){
+    //console.log(entriesRight[i])
+    entriesRight[i].style.textAlign = "right";
+    entriesRight[i].style.boxSizing = "border-box";
+    entriesRight[i].style.border = "1px solid blue";
+    entriesRight[i].style.padding= "5px";
+    entriesRight[i].style.margin= "5px";
+  }
+
+  for(let i=0;i<entriesCenter.length;i++){
+    //console.log(entriesCenter[i])
+    entriesCenter[i].style.textAlign = "center";
+  }
+
+  for(let i=0;i<entriesLeft.length;i++){
+    //console.log(entriesLeft[i])
+    entriesLeft[i].style.textAlign = "left";
+    entriesLeft[i].style.boxSizing = "border-box";
+    entriesLeft[i].style.border = "1px solid red";
+    entriesLeft[i].style.padding= "5px";
+    entriesLeft[i].style.margin= "5px";
+  }
   
   var wnd = window.open('about:blank', '', '_blank');
   
   if(wnd!=null){
 
     let wndContent = doc.documentElement.outerHTML;
-    
-    wndContent = wndContent.replace("http://localhost:3000/css/article.css","../css/article.css");
-    wndContent = wndContent.replace("http://localhost:3000/css/katex.css","../css/katex.css");
-    
-    console.log(wndContent);
 
-    document.write(wndContent);
-    document.close();
-    //wnd.focus();
-    //wnd.print();
+    wnd.document.write(wndContent);
+    wnd.document.close();
+    wnd.focus();
+    wnd.print();
     //wnd.close();
   }
 
