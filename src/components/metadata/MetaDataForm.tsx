@@ -7,6 +7,9 @@ import { useEffect, useState } from "react";
 import { Editor } from "react-draft-wysiwyg";
 import { Button } from "../Button";
 
+import { isAdvancedModeChecked } from "../../pages/Auth";
+import { LatexDiscussion } from "../../components/LatexDiscussion";
+
 const toolbarOptions = {
   options: ["blockType", "inline", "list", "textAlign"],
   blockType: {
@@ -64,6 +67,9 @@ export const MetaDataForm: React.FC<MetaDataFormProps> = ({
       className={cx("rounded-b-lg bg-white", {
         "RichEditor-hidePlaceholder": hidePlaceholder,
       })}>
+
+      {!isAdvancedModeChecked ? (
+          
       <Editor
         localization={{
           locale: "de",
@@ -83,6 +89,7 @@ export const MetaDataForm: React.FC<MetaDataFormProps> = ({
         )}
         toolbar={toolbarOptions}
       />
+    ) : <LatexDiscussion content={defaultContent +""}/>}
       <div className="flex justify-end gap-2 p-3 pt-2 border-t border-lightGrey">
         <Button
           icon={<X size={20} />}
@@ -99,6 +106,9 @@ export const MetaDataForm: React.FC<MetaDataFormProps> = ({
           textColor="font-bold text-darkRed hover:text-white">
           Abbrechen
         </Button>
+
+        {!isAdvancedModeChecked ? (
+           
         <Button
           icon={<FloppyDisk size={20} />}
           onClick={() => {
@@ -114,6 +124,27 @@ export const MetaDataForm: React.FC<MetaDataFormProps> = ({
           textColor="font-bold text-darkGreen hover:text-white">
           Speichern
         </Button>
+
+        ) : 
+        (
+          <Button
+            icon={<FloppyDisk size={20} />}
+            onClick={() => {
+              
+              let textarea1 = document.getElementById("latex_textarea") as HTMLTextAreaElement;
+              let latexoutput1 = document.getElementById("latex_output_area") as HTMLIFrameElement;
+              let plainText = textarea1.value;
+              let newHtml = latexoutput1.src;
+
+              //!console.log(plainText / ",newHtml)
+              //*onSave(plainText, newHtml, entryEvidences);
+              onSave(plainText, plainText);
+            }}
+            size="sm"
+            bgColor="bg-lightGreen hover:bg-darkGreen"
+            textColor="font-bold text-darkGreen hover:text-white">
+            Speichern2
+          </Button>)}
       </div>
     </div>
   );

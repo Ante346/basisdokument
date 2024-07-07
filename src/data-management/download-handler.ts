@@ -188,6 +188,26 @@ function createLatexString(basisdokumentObject: any, filename: string){
 
   `
 
+  let rubrum = `
+
+  \\begin{flushleft} 
+
+  Rubrum Klagepartei
+
+  ${basisdokumentObject.metaData.plaintiff}
+  
+  \\end{flushleft}
+
+  \\begin{flushright} 
+
+  Rubrum Beklagtenpartei
+
+  ${basisdokumentObject.metaData.defendant}
+  
+  \\end{flushright}
+
+  `
+
   let contentString = "";
 
   for(let i=0; i<basisdokumentObject.sections.length; i++){
@@ -232,7 +252,7 @@ function createLatexString(basisdokumentObject: any, filename: string){
 
   }
 
-  let latexString = "\\documentclass{article}" + packageImport + "\\begin{document}" + titleTable + contentString +"\\end{document}"
+  let latexString = "\\documentclass{article}" + packageImport + "\\begin{document}" + titleTable + rubrum + contentString +"\\end{document}"
 
 
   createPDFFromLatex(latexString, filename);
@@ -270,7 +290,7 @@ async function convertHTMLtoPDFbyPrinting(doc: any, filename: string){
 
   let entriesRight = doc.querySelectorAll(".list.flushright");
   let entriesCenter = doc.querySelectorAll(".list.center");
-  let entriesLeft = doc.querySelectorAll(".list.flushleft");
+  let entriesLeft = doc.querySelectorAll(".list.flushleft");  
 
   for(let i=0;i<entriesRight.length;i++){
     //console.log(entriesRight[i])
